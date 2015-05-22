@@ -1,24 +1,25 @@
-#pragma once
-
 #include "Main.h"
 
 namespace Interpreter {
-void Scanner::clear() {
+    namespace Lexer {
+
+void Scanner::cleanBuf() {
 	buf_top = 0;
 	for ( int j = 0; j < 128; j++ )
 		buf[j] = '\0';
 }
 
-void Scanner::gc () {
+void Scanner::getChar () {
 	lc = c;
 	input.get(c);
 	if (input.eof())
 		c = EOF;
 }
+
 Scanner::Scanner (const std::string &filename):input(filename.c_str()) {
-	CS = H;
-	clear();
-	gc();
+	currentState = H;
+	cleanBuf();
+	getChar();
 }
 
 std::map<std::string, Ident> TID;
@@ -33,47 +34,46 @@ std::map<std::string, Lex_t> Scanner::TD = { {"", LEX_NULL}, {"@", LEX_FIN}, {"\
 	{"+=", LEX_PLUSEQ}, {"-=", LEX_MINUSEQ}, {"*=", LEX_MULEQ}, {"/=", LEX_DIVEQ}, {"%=", LEX_MODEQ}, {"++", LEX_INC}, {"--", LEX_DEC}
 };
 
-Lex Scanner::get_lex () {
-	int d, j;
+Lex Scanner::getLex () {
 	std::map<std::string, Ident>::iterator itd;
-	CS = H;
+	currentState = H;
 	do {
-		switch(CS) {
+		switch(currentState) {
 			case H:
 				if (c ==' ' || c == '\n')
-					gc();
+					getChar();
 				else if (isalpha(c) || c == '_') {
-					clear();
+					cleanBuf();
 					add();
-					gc();
-					CS = IDENT;
+					getChar();
+					currentState = IDENT;
 				} else if (isdigit(c)) {
-					clear();
+					cleanBuf();
 					add();
-					gc();
-					CS = NUMB;
+					getChar();
+					currentState = NUMB;
 				} else if ( c == '"') {
-					clear();
-					gc();
-					CS = STR;
+					cleanBuf();
+					getChar();
+					currentState = STR;
 				} else if (c == EOF)
 					return Lex(LEX_FIN);
 				else if (c == ';') {
-					gc();
+					getChar();
 					return Lex(LEX_SEMICOLON, ";");
 				} else if (c == '{') {
-					gc();
+					getChar();
 					return Lex(LEX_BL_START, "{");
 				} else if (c == '}') {
-					gc();
+					getChar();
 					return Lex(LEX_BL_FINISH, "}");
 				} else
-					CS = DELIM;
+					currentState = DELIM;
 				break;
 			case IDENT:
 				if (isalpha(c) || isdigit(c) || c == '_') {
 					add();
-					gc();
+					getChar();
 				} else if(TW[buf])
 					return Lex(TW[buf], buf);
 				else {
@@ -88,29 +88,29 @@ Lex Scanner::get_lex () {
 			case STR:
 				if ( c != '"') {
 					add();
-					gc();
+					getChar();
 				} else {
-					gc();
-					CS = H;
+					getChar();
+					currentState = H;
 					return Lex(LEX_STR, buf);
 				}
 				break;
 			case NUMB : {
 					if( isdigit(c) ) {
 						add();
-						gc();
+						getChar();
 					} else return Lex( LEX_NUM, buf );
 					break;
 				}
 			case DELIM:
 				if((c == '+' || c == '-' || c == '*' || c == '/' || c == '%') && !((c == '+' && lc == '+') || (c == '-' && lc == '-') )) {
-					clear();
+					cleanBuf();
 					add();
-					gc();
+					getChar();
 				} else if((c == '=' && (lc == '+' || lc == '-' || lc == '*' || lc == '/' || lc == '%')) || (c == '+' && lc == '+') || (c == '-' && lc == '-')) {
 					add();
 					if(TD[buf]) {
-						gc();
+						getChar();
 						return Lex(TD[buf], buf);
 					}
 					break;
@@ -120,10 +120,10 @@ Lex Scanner::get_lex () {
 					}
 					break;
 				} else {
-					clear();
+					cleanBuf();
 					add();
 					if(TD[buf]) {
-						gc();
+						getChar();
 						return Lex(TD[buf], buf);
 					}
 					break;
@@ -131,4 +131,10 @@ Lex Scanner::get_lex () {
 		}
 	} while(true);
 }
+
+void Scanner::add() {
+	buf[buf_top++] = c;
+}
+
+    }
 }

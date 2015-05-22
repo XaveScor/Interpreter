@@ -1,13 +1,11 @@
-#include <iostream>
-
-#include "Lexer.h"
+#include "Main.h"
 
 int main() {
-	Interpreter::Scanner a("sample.js");
-	Interpreter::Lex l;
-	while(l.get_type() != Interpreter::LEX_FIN) {
-		l = a.get_lex();
-		std::cout << l << std::endl;
+	Lexer::Scanner scanner("sample.js");
+	Lexer::Lex lex;
+	while(lex.get_type() != Lexer::LEX_FIN) {
+		lex = scanner.getLex();
+		std::cout << lex << std::endl;
 	}
 	return 0;
 }

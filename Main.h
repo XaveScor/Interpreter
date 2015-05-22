@@ -10,4 +10,8 @@
 #include <cstdlib>
 
 #include "Lex_type.h"
-#include "Lexer.h"
+#include "Ident.h"
+#include "Lex.h"
+#include "Scanner.h"
+
+namespace Lexer = Interpreter::Lexer;

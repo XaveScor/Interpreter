@@ -3,6 +3,7 @@
 #include "Main.h"
 
 namespace Interpreter {
+    namespace Lexer {
 enum Lex_t {
 	LEX_NULL,
 	LEX_DO, LEX_ELSE, LEX_END, LEX_IF, LEX_FALSE, LEX_TRUE, LEX_INT, LEX_BOOL,
@@ -23,4 +24,5 @@ enum Lex_t {
 	LEX_BL_START,
 	LEX_BL_FINISH
 };
+    }
 }
