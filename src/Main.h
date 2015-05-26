@@ -4,10 +4,9 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <cstring>
-#include <cstdio>
 #include <ctype.h>
 #include <cstdlib>
+#include <exception>
 
 #include "Lex_type.h"
 #include "Ident.h"
