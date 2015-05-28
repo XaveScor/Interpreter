@@ -5,10 +5,13 @@
 namespace Interpreter {
     namespace Lexer {
 
+        class UndefinedType : std::exception {
+        };
+
         class Scanner {
             std::ifstream input;
             enum state_t {
-                START, INDENT, STRING, NUMBER, OPERATION
+                START, INDENT, STRING, NUMBER, OPERATION, SPACE
             };
 
             char currentChar;
@@ -21,23 +24,20 @@ namespace Interpreter {
 
             state_t startState();
 
-            Lex_t checkLex(const std::string lexName);
+            Lex_t checkLex(std::string lexName);
 
             bool isSpace(char aChar);
 
-            class UndefinedType : std::exception {
-            };
-
-            bool notGetCharInNext;
-
             bool isOperation(char aChar);
+
+            std::string trim(const std::string &str, size_t end, size_t start = 0);
 
         public:
             Scanner(const std::string &filename);
 
             Lex getLex();
 
-
+            void unGetChar();
         };
 
     }

@@ -4,26 +4,24 @@ namespace Interpreter {
     namespace Lexer {
 
         void Scanner::getChar() {
-            if (notGetCharInNext) {
-                notGetCharInNext = false;
-                return;
-            }
             input.get(currentChar);
             if (input.eof())
                 currentChar = EOF;
-            if (!isSpace(currentChar))
-                buf += currentChar;
+            buf += currentChar;
         }
 
-        Scanner::Scanner(const std::string &filename) : input(filename.c_str()), buf(1, '\0'), currentState(START),
-                                                        notGetCharInNext(false) { }
+        void Scanner::unGetChar() {
+            buf = trim(buf, 1);
+            input.unget();
+        }
+
+        Scanner::Scanner(const std::string &filename) : input(filename.c_str()), buf(1, '\0'), currentState(START) { }
 
         Lex Scanner::getLex() {
             currentState = START;
             clearBuf();
             while (true) {
                 getChar();
-                notGetCharInNext = false;
                 switch (currentState) {
                     case START:
                         try {
@@ -34,37 +32,53 @@ namespace Interpreter {
                         break;
                     case INDENT:
                         if (isSpace(currentChar)) {
+                            unGetChar();
                             Lex_t lex = checkLex(buf);
                             if (lex != LEX_EMPTY)
                                 return Lex(lex, buf);
                             return Lex(LEX_NAME, buf);
                         }
                         if (isOperation(currentChar)) {
-                            input.unget();
-                            return Lex(LEX_NAME, buf.substr(0, buf.length() - 1));
+                            unGetChar();
+                            return Lex(LEX_NAME, buf);
                         }
+                        if (currentChar == EOF)
+                            return Lex(LEX_UNDEFINED);
                         break;
                     case STRING:
+                        if (currentChar == '"')
+                            return Lex(LEX_STRING, trim(buf, 1, 1)); // Delete first and last "
+                        if (currentChar == EOF)
+                            return Lex(LEX_UNDEFINED);
                         break;
                     case NUMBER:
-                        if (isSpace(currentChar))
+                        if (isSpace(currentChar)) {
+                            unGetChar();
                             return Lex(LEX_NUMBER, buf);
-                        if (isOperation(currentChar)) {
-                            input.unget();
-                            return Lex(LEX_NUMBER, buf.substr(0, buf.length() - 1));
                         }
-                        if (!std::isdigit(currentChar))
+                        if (isOperation(currentChar)) {
+                            unGetChar();
+                            return Lex(LEX_NUMBER, buf);
+                        }
+                        if (!(std::isdigit(currentChar) || currentChar == '.'))
                             return Lex(LEX_UNDEFINED);
                         break;
                     case OPERATION:
-                        if (isSpace(currentChar)) {
-                            Lex_t lex = checkLex(buf);
-                            if (lex != LEX_EMPTY)
-                                return Lex(lex, buf);
+                        if (!isOperation(currentChar)) {
+                            while (buf.length()) {
+                                unGetChar();
+                                Lex_t lex = checkLex(buf);
+                                if (lex != LEX_EMPTY)
+                                    return Lex(lex, buf);
+                            }
                             return Lex(LEX_UNDEFINED);
                         }
-                        if (!isOperation(currentChar))
-                            return Lex(LEX_UNDEFINED);
+                        break;
+                    case SPACE:
+                        if (currentChar == EOF || currentChar == '\0')
+                            return Lex(LEX_FINISH, "FINISH");
+                        currentState = START;
+                        clearBuf();
                         break;
                 }
 
@@ -79,20 +93,29 @@ namespace Interpreter {
         }
 
         Scanner::state_t Scanner::startState() {
-            notGetCharInNext = true;
-            if (currentChar == '"')
+            unGetChar();
+            if (currentChar == '"') {
+                getChar();
                 return STRING;
+            }
             if (std::isalpha(currentChar))
                 return INDENT;
             if (std::isdigit(currentChar))
                 return NUMBER;
             if (isOperation(currentChar))
                 return OPERATION;
+            if (isSpace(currentChar))
+                return SPACE;
 
             throw new UndefinedType();
         }
 
-        Lex_t Scanner::checkLex(const std::string lexName) {
+        Lex_t Scanner::checkLex(std::string lexName) {
+            std::string::iterator lexIt = lexName.begin();
+            for (; lexIt != lexName.end(); ++lexIt)
+                if (std::isupper(*lexIt))
+                    *lexIt = (char) std::tolower(*lexIt);
+
             typename keyTable_t::const_iterator it = keyTable.begin();
             Lex_t ret = LEX_EMPTY;
 
@@ -111,6 +134,7 @@ namespace Interpreter {
                 case '\t':
                 case '\n':
                 case EOF:
+                case '\0':
                     return true;
             }
             return false;
@@ -119,10 +143,28 @@ namespace Interpreter {
         bool Scanner::isOperation(char aChar) {
             switch (aChar) {
                 case '=':
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                case '%':
+                case '&':
+                case '|':
+                case '!':
+                case '(':
+                case ')':
+                case '{':
+                case '}':
+                case '>':
+                case '<':
                 case ';':
                     return true;
             }
             return false;
+        }
+
+        std::string Scanner::trim(const std::string &str, size_t end, size_t start/* = 0*/) {
+            return str.substr(start, str.length() - end - start);
         }
     }
 }
