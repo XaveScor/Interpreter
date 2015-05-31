@@ -17,9 +17,17 @@ namespace Interpreter {
             buf = trim(buf, 1);
         }
 
-        Scanner::Scanner(const std::string &filename) : input(filename.c_str()), buf(1, '\0'), currentState(START) { }
+        Scanner::Scanner(const std::string &filename) : input(filename.c_str()), buf(1, '\0'), currentState(START), curBufPosition(0) {
+            Lex lex;
+            do {
+                lex = readLex();
+                lexBuf.push_back(lex);
+            }
+            while (lex.getType() != Lexer::LEX_FINISH);
+            lexBuf.push_back(lex);
+        }
 
-        Lex Scanner::getLex() {
+        Lex Scanner::readLex() {
             currentState = START;
             clearBuf();
             while (true) {
@@ -42,6 +50,9 @@ namespace Interpreter {
                         }
                         if (isOperation(currentChar)) {
                             unGetChar();
+                            Lex_t lex = checkLex(buf);
+                            if (lex != LEX_EMPTY)
+                                return Lex(lex, buf);
                             return Lex(LEX_NAME, buf);
                         }
                         if (currentChar == EOF)
@@ -168,6 +179,19 @@ namespace Interpreter {
 
         std::string Scanner::trim(const std::string &str, size_t end, size_t start/* = 0*/) {
             return str.substr(start, str.length() - end - start);
+        }
+
+
+        Lex Scanner::getLex() {
+            if (curBufPosition == lexBuf.size() - 1)
+                return lexBuf.back();
+            return lexBuf[curBufPosition++];
+        }
+
+        void Scanner::unGetLex() {
+            if (!curBufPosition)
+                return;
+            --curBufPosition;
         }
     }
 }

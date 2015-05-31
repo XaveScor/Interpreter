@@ -39,12 +39,13 @@ namespace Interpreter {
                 {LEX_MULEQ,   10},
                 {LEX_DIVEQ,   10},
                 {LEX_MODEQ,   10},
+                {LEX_EMPTY, 100}
 
         };
 
         void getLex();
 
-        void startPoint();
+        void startPoint(Lex_t second = LEX_FINISH);
 
         void functionPoint();
 
@@ -62,13 +63,19 @@ namespace Interpreter {
 
         void expressionPoint();
 
+        void unGetLex();
+
         size_t getPriorityByOperation(Lex_t operation) const;
 
+        void blockPoint();
+
+        void namePoint();
     public:
         poliz_t poliz;
 
         Parser(std::string fileName);
 
         void start();
+
     };
 }

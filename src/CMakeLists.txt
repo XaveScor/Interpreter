@@ -8,6 +8,7 @@ set (PRIVATE_CLASSES
         Main
         Scanner
         Parser
+        functions
     )
 
 SET (HEADERS_ONLY

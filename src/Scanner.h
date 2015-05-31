@@ -34,10 +34,17 @@ namespace Interpreter {
 
             void unGetChar();
 
+            Lex readLex();
+            typedef std::vector<Lex> lexBuf_t;
+            lexBuf_t lexBuf;
+            size_t curBufPosition;
+
         public:
             Scanner(const std::string &filename);
 
             Lex getLex();
+
+            void unGetLex();
 
         };
 
