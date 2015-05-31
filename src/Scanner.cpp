@@ -7,12 +7,14 @@ namespace Interpreter {
             input.get(currentChar);
             if (input.eof())
                 currentChar = EOF;
+
             buf += currentChar;
         }
 
         void Scanner::unGetChar() {
-            buf = trim(buf, 1);
             input.unget();
+            input.clear();
+            buf = trim(buf, 1);
         }
 
         Scanner::Scanner(const std::string &filename) : input(filename.c_str()), buf(1, '\0'), currentState(START) { }
@@ -75,7 +77,7 @@ namespace Interpreter {
                         }
                         break;
                     case SPACE:
-                        if (currentChar == EOF || currentChar == '\0')
+                        if (currentChar == EOF)
                             return Lex(LEX_FINISH, "FINISH");
                         currentState = START;
                         clearBuf();
@@ -158,6 +160,7 @@ namespace Interpreter {
                 case '>':
                 case '<':
                 case ';':
+                case ',':
                     return true;
             }
             return false;

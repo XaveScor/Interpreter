@@ -32,12 +32,13 @@ namespace Interpreter {
 
             std::string trim(const std::string &str, size_t end, size_t start = 0);
 
+            void unGetChar();
+
         public:
             Scanner(const std::string &filename);
 
             Lex getLex();
 
-            void unGetChar();
         };
 
     }

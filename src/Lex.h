@@ -10,9 +10,9 @@ namespace Interpreter {
         public:
             Lex(Lex_t newType = LEX_EMPTY, const std::string newValue = "");
 
-            Lex_t get_type();
+            Lex_t getType();
 
-            std::string get_value();
+            std::string getValue();
 
             friend std::ostream &operator<<(std::ostream &out, Lex el);
         };

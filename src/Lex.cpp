@@ -10,16 +10,16 @@ namespace Interpreter {
             }
         }
 
-        Lex_t Lex::get_type() {
+        Lex_t Lex::getType() {
             return type;
         }
 
-        std::string Lex::get_value() {
+        std::string Lex::getValue() {
             return value;
         }
 
         std::ostream &operator<<(std::ostream &out, Lex el) {
-            out << el.get_value();
+            out << el.getValue();
             return out;
         }
     }

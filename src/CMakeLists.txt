@@ -7,6 +7,7 @@ set (PRIVATE_CLASSES
         Lex
         Main
         Scanner
+        Parser
     )
 
 SET (HEADERS_ONLY

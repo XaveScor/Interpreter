@@ -1,16 +1,23 @@
 #include "Main.h"
 
 int main() {
-    Lexer::Scanner scanner("sample.js");
-    Lexer::Lex lex;
-    while (lex.get_type() != Lexer::LEX_FINISH) {
-        try {
-            lex = scanner.getLex();
-        } catch (Lexer::UndefinedType) {
-            return 0;
-        }
-        std::cout << lex << std::endl;
+    //*
+    Interpreter::Parser parser("sample.js");
+    parser.start();
+
+    Interpreter::Parser::poliz_t::iterator it;
+    for (it = parser.poliz.begin(); it != parser.poliz.end(); ++it) {
+        std::cout << it->getType() << ": " << it->getValue() << std::endl;
     }
+    /* */
+/*
+    Lexer::Scanner scanner("sample.js");
+    Lexer::Lex lex = scanner.getLex();
+    while(lex.getType() != Lexer::LEX_FINISH) {
+        std::cout << lex.getValue() << std::endl;
+        lex = scanner.getLex();
+    }
+    /* */
     return 0;
 }
 
