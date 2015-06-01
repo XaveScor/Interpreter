@@ -49,7 +49,7 @@ namespace Interpreter {
 
         void functionPoint();
 
-        void varPoint();
+        void varPoint(bool create = true);
 
         void cyclePoint();
 

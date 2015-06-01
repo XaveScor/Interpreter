@@ -9,7 +9,7 @@ namespace Interpreter {
         lex = lexer.getLex();
         lexType = lex.getType();
         lexValue = lex.getValue();
-        std::cout << "LEX: " << lexValue << std::endl;
+//        std::cout << "LEX: " << lexValue << std::endl;
     }
 
     void Parser::start() {
@@ -48,100 +48,6 @@ namespace Interpreter {
                     if (second != LEX_FINISH && lexType == second)
                         break;
                     throw lex;
-                case LEX_EMPTY:
-                    break;
-                case LEX_NUMBER:
-                    break;
-                case LEX_STRING:
-                    break;
-                case LEX_ASSIGN:
-                    break;
-                case LEX_DOT:
-                    break;
-                case LEX_UNDEFINED:
-                    break;
-                case LEX_FINISH:
-                    break;
-                case LEX_PLUS:
-                    break;
-                case LEX_MINUS:
-                    break;
-                case LEX_MUL:
-                    break;
-                case LEX_DIV:
-                    break;
-                case LEX_MOD:
-                    break;
-                case LEX_TRUE:
-                    break;
-                case LEX_FALSE:
-                    break;
-                case LEX_OR:
-                    break;
-                case LEX_AND:
-                    break;
-                case LEX_NOT:
-                    break;
-                case LEX_RBRACKET:
-                    break;
-                case LEX_LBRACKET:
-                    break;
-                case LEX_RFBRACKET:
-                    break;
-                case LEX_LFBRACKET:
-                    break;
-                case LEX_DO:
-                    break;
-                case LEX_FOR:
-                    break;
-                case LEX_IN:
-                    break;
-                case LEX_BREAK:
-                    break;
-                case LEX_CONTINUE:
-                    break;
-                case LEX_ELSE:
-                    break;
-                case LEX_PLUSEQ:
-                    break;
-                case LEX_MINUSEQ:
-                    break;
-                case LEX_MULEQ:
-                    break;
-                case LEX_DIVEQ:
-                    break;
-                case LEX_MODEQ:
-                    break;
-                case LEX_MORE:
-                    break;
-                case LEX_LESS:
-                    break;
-                case LEX_MOREEQ:
-                    break;
-                case LEX_LESSEQ:
-                    break;
-                case LEX_EQ:
-                    break;
-                case LEX_NOTEQ:
-                    break;
-                case LEX_INC:
-                    break;
-                case LEX_DEC:
-                    break;
-                case LEX_TYPEOF:
-                    break;
-                case LEX_RETURN:
-                    break;
-                case LEX_COMMA:
-                    break;
-                case POLIZ_GO:
-                    break;
-                case POLIZ_FALSEGO:
-                    break;
-                case POLIZ_LABEL:
-                    break;
-                case POLIZ_ADDRESS:
-                    break;
             }
             getLex();
         }
@@ -156,10 +62,19 @@ namespace Interpreter {
 
     }
 
-    void Parser::varPoint() {
+    void Parser::varPoint(bool create) {
         getLex();
         if (lexType != LEX_NAME)
             throw lex;
+        if (create) {
+            if (data.count(lexValue))
+                throw "";
+            data.insert(std::make_pair(lexValue, ""));
+        }
+        else {
+            if (!data.count(lexValue))
+                throw "";
+        }
         poliz.push_back(lex);
 
         getLex();
@@ -182,7 +97,7 @@ namespace Interpreter {
 
         getLex();
         if (lexType == LEX_COMMA) {
-            varPoint();
+            varPoint(false);
             return;
         }
         if (lexType != LEX_ENDOP)
@@ -360,6 +275,6 @@ namespace Interpreter {
     }
 
     void Parser::namePoint() {
-        varPoint();
+        varPoint(false);
     }
 }

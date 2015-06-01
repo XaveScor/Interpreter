@@ -17,5 +17,6 @@
 #include "Scanner.h"
 #include "Parser.h"
 #include "functions.h"
+#include "data.h"
 
 namespace Lexer = Interpreter::Lexer;
