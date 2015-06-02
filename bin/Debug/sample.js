@@ -1,3 +1,3 @@
-while (x + 1) {
-x = x + 2;
-}
+var x = 1, y = 2;
+write(x + y);
+while (())

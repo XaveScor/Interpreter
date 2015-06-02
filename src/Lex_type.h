@@ -13,7 +13,7 @@ namespace Interpreter {
             LEX_ENDOP, LEX_DOT,
             LEX_UNDEFINED,
             LEX_FINISH,
-            LEX_PLUS, LEX_MINUS, LEX_MUL, LEX_DIV, LEX_MOD,
+            LEX_PLUS, LEX_MINUS, LEX_MUL, LEX_DIV,
             LEX_TRUE, LEX_FALSE,
             LEX_OR, LEX_AND, LEX_NOT,
             LEX_RBRACKET, LEX_LBRACKET,
@@ -26,7 +26,7 @@ namespace Interpreter {
             LEX_INC, LEX_DEC,
             LEX_FUNCTION, LEX_TYPEOF, LEX_RETURN,
             LEX_COMMA,
-            POLIZ_GO, POLIZ_FALSEGO, POLIZ_LABEL, POLIZ_ADDRESS
+            POLIZ_GO, POLIZ_FALSEGO, POLIZ_ADDRESS
         };
 
         typedef std::map<std::string, Lex_t> keyTable_t;
@@ -38,7 +38,6 @@ namespace Interpreter {
                 {"-",        LEX_MINUS},
                 {"*",        LEX_MUL},
                 {"/",        LEX_DIV},
-                {"%",        LEX_MOD},
                 {".",        LEX_DOT},
                 {"true",     LEX_TRUE},
                 {"false",    LEX_FALSE},

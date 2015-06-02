@@ -1,7 +1,7 @@
 #include "Main.h"
 
 int main() {
-    //*
+    /*
     Interpreter::Parser parser("sample.js");
     parser.start();
 
@@ -18,6 +18,9 @@ int main() {
         lex = scanner.getLex();
     }
     /* */
+
+    Interpreter::Executer exec("sample.js");
+    exec.start();
     return 0;
 }
 

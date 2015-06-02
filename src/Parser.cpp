@@ -14,6 +14,7 @@ namespace Interpreter {
 
     void Parser::start() {
         startPoint();
+        poliz.push_back(Lex(LEX_FINISH, ""));
     }
 
     void Parser::startPoint(Lex_t second /* = LEX_FINISH*/) {
@@ -69,13 +70,13 @@ namespace Interpreter {
         if (create) {
             if (data.count(lexValue))
                 throw "";
-            data.insert(std::make_pair(lexValue, ""));
+            data.insert(std::make_pair(lexValue, Lex(LEX_STRING, "")));
         }
         else {
             if (!data.count(lexValue))
                 throw "";
         }
-        poliz.push_back(lex);
+        poliz.push_back(Lex(POLIZ_ADDRESS, lex.getValue()));
 
         getLex();
         switch (lexType) {
@@ -86,6 +87,10 @@ namespace Interpreter {
             case LEX_DIVEQ:
             case LEX_MODEQ:
                 break;
+            case LEX_ENDOP:
+                goto endop;
+            case LEX_COMMA:
+                goto comma;
             default:
                 throw lex;
         }
@@ -96,10 +101,12 @@ namespace Interpreter {
         operators.pop();
 
         getLex();
+        comma:
         if (lexType == LEX_COMMA) {
-            varPoint(false);
+            varPoint(true);
             return;
         }
+        endop:
         if (lexType != LEX_ENDOP)
             throw lex;
     }
@@ -109,6 +116,7 @@ namespace Interpreter {
             EL_NUMBER, EL_NAME, EL_OPERATION
         } lastElType = EL_OPERATION;
         bool isBreak = true;
+        operators.push(LEX_EMPTY);
         while (isBreak) {
             getLex();
             switch (lexType) {
@@ -125,7 +133,6 @@ namespace Interpreter {
                 case LEX_PLUS:
                 case LEX_MINUS:
                 case LEX_DIV:
-                case LEX_MOD:
                 case LEX_MUL:
                 case LEX_AND:
                 case LEX_OR:
@@ -167,6 +174,11 @@ namespace Interpreter {
                     break;
                 default:
                     unGetLex();
+                    while (operators.top().getType() != LEX_EMPTY) {
+                        poliz.push_back(operators.top());
+                        operators.pop();
+                    }
+                    operators.pop();
                     isBreak = false;
             }
         }
@@ -181,7 +193,7 @@ namespace Interpreter {
         size_t startCycle = poliz.size();
         if (lexType != LEX_LBRACKET)
             throw lex;
-        operators.push(lex);
+        unGetLex();
         expressionPoint();
         poliz.push_back(Lex(POLIZ_FALSEGO));
         size_t firstGoTo = poliz.size() - 1;
@@ -201,7 +213,7 @@ namespace Interpreter {
         getLex();
         if (lexType != LEX_LBRACKET)
             throw lex;
-        operators.push(lex);
+        unGetLex();
         expressionPoint();
 
         poliz.push_back(Lex(POLIZ_FALSEGO));
@@ -258,7 +270,7 @@ namespace Interpreter {
             throw lex;
         unGetLex();
         expressionPoint();
-        poliz.push_back(Lex(LEX_READ));
+        poliz.push_back(Lex(LEX_WRITE));
 
         getLex();
         if (lexType != LEX_ENDOP)
